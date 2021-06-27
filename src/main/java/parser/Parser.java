@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
+    private CFGNode lastBranch;
+
     public void parse(final File file) throws FileNotFoundException {
         CompilationUnit cu = StaticJavaParser.parse(file);
         final List<CFG> cfgList = cu.findAll(MethodDeclaration.class)
@@ -40,20 +42,31 @@ public class Parser {
         if (node instanceof MethodDeclaration) {
             ((MethodDeclaration) node).getBody().ifPresent(body -> {
                 System.out.println(body);
-                this.getPaths(body, cfg, new CFGNode());
+                final CFGNode root = new CFGNode();
+                cfg.addNode(root);
+                this.getPaths(body, cfg, root);
             });
+            return cfg;
+        }
+
+        if (this.lastBranch != null && this.lastBranch != parent) {
+            parent = this.lastBranch;
+            this.lastBranch = null;
         }
 
         final CFGNode currentCFGNode = new CFGNode(Collections.singletonList(node));
 
         if (node instanceof BlockStmt) {
-            ((BlockStmt) node).getStatements().forEach(statement -> getPaths(statement, cfg, currentCFGNode));
+            CFGNode finalParent = parent;
+            ((BlockStmt) node).getStatements().forEach(statement -> getPaths(statement, cfg, finalParent));
+            return cfg;
         }
 
         if (node instanceof IfStmt) {
             final Expression condition = ((IfStmt) node).getCondition();
             System.out.println("If Expression. Condition found: " + condition.toString());
             this.getPaths(((IfStmt) node).getThenStmt(), cfg, currentCFGNode);
+            this.lastBranch = currentCFGNode;
         }
 
         if (node instanceof ReturnStmt && ((ReturnStmt) node).getExpression().isPresent()) {
