@@ -41,16 +41,16 @@ public class Parser {
         final CFGEndNode end = new CFGEndNode();
 
         final List<CFGNode> fromNodes = cfg.getEdges()
-                                                   .values()
-                                                   .stream()
-                                                   .map(CFGEdge::getFrom)
-                                                   .collect(Collectors.toList());
+                                           .values()
+                                           .stream()
+                                           .map(CFGEdge::getFrom)
+                                           .collect(Collectors.toList());
 
         final List<CFGNode> leafNodes = cfg.getNodes()
-                                                   .values()
-                                                   .stream()
-                                                   .filter(entryNode -> !fromNodes.contains(entryNode))
-                                                   .collect(Collectors.toList());
+                                           .values()
+                                           .stream()
+                                           .filter(entryNode -> !fromNodes.contains(entryNode))
+                                           .collect(Collectors.toList());
         cfg.addNode(end);
         leafNodes.forEach(leaf -> cfg.addEdge(new CFGEdge(leaf, end)));
 
