@@ -30,14 +30,14 @@ public class Parser {
         CompilationUnit cu = StaticJavaParser.parse(file);
         final List<CFG> cfgList = cu.findAll(MethodDeclaration.class)
                                     .stream()
-                                    .map(this::getPaths)
+                                    .map(this::buildCFGFromMethodDeclaration)
                                     .collect(Collectors.toList());
 
         System.out.println(Arrays.toString(cfgList.toArray()));
     }
 
-    private CFG getPaths(MethodDeclaration node) {
-        final CFG cfg = this.getPaths(node, new CFG(), null);
+    private CFG buildCFGFromMethodDeclaration(MethodDeclaration node) {
+        final CFG cfg = this.introspectCFG(node, new CFG(), null);
         final CFGEndNode end = new CFGEndNode();
 
         final List<CFGNode> fromNodes = cfg.getEdges()
@@ -57,14 +57,14 @@ public class Parser {
         return cfg;
     }
 
-    private CFG getPaths(Node node, CFG cfg, CFGNode parent) {
+    private CFG introspectCFG(Node node, CFG cfg, CFGNode parent) {
         System.out.println("Printing " + node.getClass().getName() + ". Range: " + node.getRange().get());
         if (node instanceof MethodDeclaration) {
             ((MethodDeclaration) node).getBody().ifPresent(body -> {
                 System.out.println(body);
                 final CFGNode root = new CFGRootNode();
                 cfg.addNode(root);
-                this.getPaths(body, cfg, root);
+                this.introspectCFG(body, cfg, root);
             });
             return cfg;
         }
@@ -78,14 +78,14 @@ public class Parser {
 
         if (node instanceof BlockStmt) {
             CFGNode finalParent = parent;
-            ((BlockStmt) node).getStatements().forEach(statement -> getPaths(statement, cfg, finalParent));
+            ((BlockStmt) node).getStatements().forEach(statement -> introspectCFG(statement, cfg, finalParent));
             return cfg;
         }
 
         if (node instanceof IfStmt) {
             final Expression condition = ((IfStmt) node).getCondition();
             System.out.println("If Expression. Condition found: " + condition.toString());
-            this.getPaths(((IfStmt) node).getThenStmt(), cfg, currentCFGSimpleNode);
+            this.introspectCFG(((IfStmt) node).getThenStmt(), cfg, currentCFGSimpleNode);
             this.lastBranch = currentCFGSimpleNode;
         }
 
