@@ -1,4 +1,4 @@
-package parser;
+package graph;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -22,11 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Parser {
+public class CGFBuilder {
 
     private CFGSimpleNode lastBranch;
 
-    public void parse(final File file) throws FileNotFoundException {
+    public List<CFG> buildCFGFromFile(final File file) throws FileNotFoundException {
         CompilationUnit cu = StaticJavaParser.parse(file);
         final List<CFG> cfgList = cu.findAll(MethodDeclaration.class)
                                     .stream()
@@ -34,6 +34,8 @@ public class Parser {
                                     .collect(Collectors.toList());
 
         System.out.println(Arrays.toString(cfgList.toArray()));
+
+        return cfgList;
     }
 
     private CFG buildCFGFromMethodDeclaration(MethodDeclaration node) {
