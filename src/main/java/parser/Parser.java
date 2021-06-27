@@ -10,7 +10,10 @@ import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
 import graph.CFG;
 import graph.CFGEdge;
+import graph.CFGEndNode;
 import graph.CFGNode;
+import graph.CFGRootNode;
+import graph.CFGSimpleNode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
-    private CFGNode lastBranch;
+    private CFGSimpleNode lastBranch;
 
     public void parse(final File file) throws FileNotFoundException {
         CompilationUnit cu = StaticJavaParser.parse(file);
@@ -34,7 +37,24 @@ public class Parser {
     }
 
     private CFG getPaths(MethodDeclaration node) {
-        return this.getPaths(node, new CFG(), null);
+        final CFG cfg = this.getPaths(node, new CFG(), null);
+        final CFGEndNode end = new CFGEndNode();
+
+        final List<CFGNode> fromNodes = cfg.getEdges()
+                                                   .values()
+                                                   .stream()
+                                                   .map(CFGEdge::getFrom)
+                                                   .collect(Collectors.toList());
+
+        final List<CFGNode> leafNodes = cfg.getNodes()
+                                                   .values()
+                                                   .stream()
+                                                   .filter(entryNode -> !fromNodes.contains(entryNode))
+                                                   .collect(Collectors.toList());
+        cfg.addNode(end);
+        leafNodes.forEach(leaf -> cfg.addEdge(new CFGEdge(leaf, end)));
+
+        return cfg;
     }
 
     private CFG getPaths(Node node, CFG cfg, CFGNode parent) {
@@ -42,7 +62,7 @@ public class Parser {
         if (node instanceof MethodDeclaration) {
             ((MethodDeclaration) node).getBody().ifPresent(body -> {
                 System.out.println(body);
-                final CFGNode root = new CFGNode();
+                final CFGNode root = new CFGRootNode();
                 cfg.addNode(root);
                 this.getPaths(body, cfg, root);
             });
@@ -54,7 +74,7 @@ public class Parser {
             this.lastBranch = null;
         }
 
-        final CFGNode currentCFGNode = new CFGNode(Collections.singletonList(node));
+        final CFGSimpleNode currentCFGSimpleNode = new CFGSimpleNode(Collections.singletonList(node));
 
         if (node instanceof BlockStmt) {
             CFGNode finalParent = parent;
@@ -65,8 +85,8 @@ public class Parser {
         if (node instanceof IfStmt) {
             final Expression condition = ((IfStmt) node).getCondition();
             System.out.println("If Expression. Condition found: " + condition.toString());
-            this.getPaths(((IfStmt) node).getThenStmt(), cfg, currentCFGNode);
-            this.lastBranch = currentCFGNode;
+            this.getPaths(((IfStmt) node).getThenStmt(), cfg, currentCFGSimpleNode);
+            this.lastBranch = currentCFGSimpleNode;
         }
 
         if (node instanceof ReturnStmt && ((ReturnStmt) node).getExpression().isPresent()) {
@@ -74,10 +94,10 @@ public class Parser {
             System.out.println("Return Expression: " + expression.getClass().getName() + " " + expression.toString());
         }
 
-        cfg.addNode(currentCFGNode);
+        cfg.addNode(currentCFGSimpleNode);
 
         if (parent != null) {
-            cfg.addEdge(new CFGEdge(parent, currentCFGNode));
+            cfg.addEdge(new CFGEdge(parent, currentCFGSimpleNode));
         }
         return cfg;
     }
