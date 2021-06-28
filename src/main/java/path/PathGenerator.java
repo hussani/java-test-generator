@@ -11,6 +11,8 @@ import java.util.List;
 
 public class PathGenerator {
 
+    public static final int MAX_PATH_LENGTH = 20;
+
     public List<GraphPath<String, DefaultEdge>> getAllPathsWithIdsFromCFG(final CFG cfg) {
         DefaultDirectedGraph<String, DefaultEdge> directedGraph
                 = new DefaultDirectedGraph<>(DefaultEdge.class);
@@ -20,9 +22,10 @@ public class PathGenerator {
            .values()
            .forEach(cfgEdge -> directedGraph.addEdge(cfgEdge.getFrom().getId(), cfgEdge.getTo().getId()));
 
-        AllDirectedPaths<String, DefaultEdge> pathAnalyser = new AllDirectedPaths<String, DefaultEdge>(directedGraph);
+        final AllDirectedPaths<String, DefaultEdge> pathAnalyser = new AllDirectedPaths<>(directedGraph);
 
-        final List<GraphPath<String, DefaultEdge>> allPaths = pathAnalyser.getAllPaths("root", "end", false, 20);
+        final List<GraphPath<String, DefaultEdge>> allPaths =
+                pathAnalyser.getAllPaths("root", "end", false, MAX_PATH_LENGTH);
 
         allPaths.forEach(System.out::println);
 
@@ -38,12 +41,12 @@ public class PathGenerator {
            .values()
            .forEach(cfgEdge -> directedGraph.addEdge(cfgEdge.getFrom(), cfgEdge.getTo()));
 
-        AllDirectedPaths<CFGNode, DefaultEdge> pathAnalyser = new AllDirectedPaths<CFGNode, DefaultEdge>(directedGraph);
+        final AllDirectedPaths<CFGNode, DefaultEdge> pathAnalyser = new AllDirectedPaths<>(directedGraph);
 
         final List<GraphPath<CFGNode, DefaultEdge>> allPaths = pathAnalyser.getAllPaths(cfg.getRootNode(),
                 cfg.getEndNode(),
                 false,
-                20);
+                MAX_PATH_LENGTH);
 
         allPaths.forEach(System.out::println);
         return allPaths;
