@@ -8,17 +8,10 @@ import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
-import graph.CFG;
-import graph.CFGEdge;
-import graph.CFGEndNode;
-import graph.CFGNode;
-import graph.CFGRootNode;
-import graph.CFGSimpleNode;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -76,7 +69,7 @@ public class CGFBuilder {
             this.lastBranch = null;
         }
 
-        final CFGSimpleNode currentCFGSimpleNode = new CFGSimpleNode(Collections.singletonList(node));
+        final CFGSimpleNode currentCFGSimpleNode = new CFGSimpleNode(node);
 
         if (node instanceof BlockStmt) {
             CFGNode finalParent = parent;
