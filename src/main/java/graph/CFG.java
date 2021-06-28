@@ -34,4 +34,12 @@ public class CFG {
     public void addEdge(CFGEdge edges) {
         this.edges.put(edges.getId(), edges);
     }
+
+    public CFGNode getRootNode() {
+        return this.nodes.get("root");
+    }
+
+    public CFGNode getEndNode() {
+        return this.nodes.get("end");
+    }
 }

@@ -1,5 +1,11 @@
 package graph;
 
-public interface CFGNode {
-    String getId();
+public abstract class CFGNode {
+
+    public abstract String getId();
+
+    @Override
+    public String toString() {
+        return this.getId();
+    }
 }

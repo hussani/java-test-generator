@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class CFGSimpleNode implements CFGNode {
+public class CFGSimpleNode extends CFGNode {
     private List<Node> statements = new ArrayList<>();
 
     public CFGSimpleNode(List<Node> statements) {
