@@ -1,14 +1,23 @@
 package graph;
 
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.type.Type;
+
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 public class CFG {
     private Hashtable<String, CFGNode> nodes;
     private Hashtable<String, CFGEdge> edges;
+    private String name;
+    private Type returnType;
+    private final List<Parameter> parameters;
 
     public CFG() {
         this.nodes = new Hashtable<String, CFGNode>();
         this.edges = new Hashtable<String, CFGEdge>();
+        this.parameters = new ArrayList<>();
     }
 
     public Hashtable<String, CFGNode> getNodes() {
@@ -41,5 +50,29 @@ public class CFG {
 
     public CFGNode getEndNode() {
         return this.nodes.get("end");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Type getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(Type returnType) {
+        this.returnType = returnType;
+    }
+
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    public void addParameter(Parameter parameter) {
+        this.parameters.add(parameter);
     }
 }

@@ -49,6 +49,10 @@ public class CGFBuilder {
         cfg.addNode(end);
         leafNodes.forEach(leaf -> cfg.addEdge(new CFGEdge(leaf, end)));
 
+        cfg.setReturnType(node.getType());
+        cfg.setName(node.getName().getIdentifier());
+        node.getParameters().forEach(cfg::addParameter);
+
         return cfg;
     }
 
