@@ -1,8 +1,8 @@
 package path;
 
-import graph.CFG;
-import graph.CFGNode;
-import graph.CGFBuilder;
+import cgf.CFG;
+import cgf.CFGNode;
+import cgf.CGFBuilder;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.junit.jupiter.api.Test;

@@ -1,4 +1,4 @@
-package graph;
+package cgf;
 
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;

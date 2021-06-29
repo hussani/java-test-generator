@@ -1,4 +1,4 @@
-package graph;
+package cgf;
 
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.type.Type;

@@ -1,7 +1,5 @@
 package cgf;
 
-import graph.CFG;
-import graph.CGFBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

@@ -1,7 +1,7 @@
 package path;
 
-import graph.CFG;
-import graph.CFGNode;
+import cgf.CFG;
+import cgf.CFGNode;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DefaultDirectedGraph;

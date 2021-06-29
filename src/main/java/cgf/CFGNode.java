@@ -1,4 +1,4 @@
-package graph;
+package cgf;
 
 public abstract class CFGNode {
 
