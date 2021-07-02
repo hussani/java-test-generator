@@ -2,6 +2,7 @@ package path;
 
 import cgf.CFG;
 import cgf.CFGNode;
+import graph.CustomEdge;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.AllDirectedPaths;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -32,18 +33,18 @@ public class PathGenerator {
         return allPaths;
     }
 
-    public List<GraphPath<CFGNode, DefaultEdge>> getAllPathsFromCFG(final CFG cfg) {
-        DefaultDirectedGraph<CFGNode, DefaultEdge> directedGraph
-                = new DefaultDirectedGraph<>(DefaultEdge.class);
+    public List<GraphPath<CFGNode, CustomEdge>> getAllPathsFromCFG(final CFG cfg) {
+        DefaultDirectedGraph<CFGNode, CustomEdge> directedGraph
+                = new DefaultDirectedGraph<>(CustomEdge.class);
 
         cfg.getNodes().values().forEach(directedGraph::addVertex);
         cfg.getEdges()
            .values()
            .forEach(cfgEdge -> directedGraph.addEdge(cfgEdge.getFrom(), cfgEdge.getTo()));
 
-        final AllDirectedPaths<CFGNode, DefaultEdge> pathAnalyser = new AllDirectedPaths<>(directedGraph);
+        final AllDirectedPaths<CFGNode, CustomEdge> pathAnalyser = new AllDirectedPaths<>(directedGraph);
 
-        final List<GraphPath<CFGNode, DefaultEdge>> allPaths = pathAnalyser.getAllPaths(cfg.getRootNode(),
+        final List<GraphPath<CFGNode, CustomEdge>> allPaths = pathAnalyser.getAllPaths(cfg.getRootNode(),
                 cfg.getEndNode(),
                 false,
                 MAX_PATH_LENGTH);

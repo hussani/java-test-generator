@@ -3,6 +3,7 @@ package cgf;
 import com.github.javaparser.Range;
 import com.github.javaparser.ast.Node;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CFGSimpleNode extends CFGNode {
@@ -13,11 +14,13 @@ public class CFGSimpleNode extends CFGNode {
         this.astNode = astNode;
     }
 
-    public Node getAstNode() {
-        return astNode;
+    @Override
+    public Optional<Node> getAstNode() {
+        return Optional.of(astNode);
     }
 
-    @Override public String getId() {
+    @Override
+    public String getId() {
         return this.astNode.getRange().stream().map(Range::toString).collect(Collectors.joining());
     }
 }

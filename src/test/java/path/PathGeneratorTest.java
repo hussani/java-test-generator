@@ -3,6 +3,7 @@ package path;
 import cgf.CFG;
 import cgf.CFGNode;
 import cgf.CGFBuilder;
+import graph.CustomEdge;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class PathGeneratorTest {
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
 
         PathGenerator generator = new PathGenerator();
-        final List<GraphPath<CFGNode, DefaultEdge>> allPathsFromCFG = generator.getAllPathsFromCFG(cfg);
+        final List<GraphPath<CFGNode, CustomEdge>> allPathsFromCFG = generator.getAllPathsFromCFG(cfg);
 
         assertEquals(2, allPathsFromCFG.size());
     }
