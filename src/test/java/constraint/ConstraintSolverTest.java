@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ConstraintSolverTest {
 
     @Test
-    public void getAllPathsFromCFGShouldReturnTheCorrectNumberOfPaths() throws FileNotFoundException {
+    public void solveConstraintsShouldReturnTheCorrectNumberOfParametersSolved() throws FileNotFoundException {
         String filename = "IfElseSimple.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
@@ -30,9 +30,28 @@ class ConstraintSolverTest {
         PathGenerator generator = new PathGenerator();
         final List<GraphPath<CFGNode, CustomEdge>> allPathsFromCFG = generator.getAllPathsFromCFG(cfg);
 
-        ConstraintSolver solver = new ConstraintSolver();
-        final Hashtable<String, Object> constraintsSolved = solver.solveConstraints(cfg, allPathsFromCFG.get(0));
+        ConstraintSolver solver = new ConstraintSolver(cfg, allPathsFromCFG.get(0));
+        final Hashtable<String, Object> constraintsSolved = solver.solveConstraints();
 
         assertEquals(2, constraintsSolved.size());
+    }
+
+    @Test
+    public void resolveReturnShouldReturnTheCorrectExpectedReturnWithoutSolve() throws FileNotFoundException {
+        String filename = "IfElseSimple.java";
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource(filename).getFile());
+
+        CGFBuilder builder = new CGFBuilder();
+        final CFG cfg = builder.buildCFGFromFile(file).get(0);
+
+        PathGenerator generator = new PathGenerator();
+        final List<GraphPath<CFGNode, CustomEdge>> allPathsFromCFG = generator.getAllPathsFromCFG(cfg);
+
+        ConstraintSolver solver = new ConstraintSolver(cfg, allPathsFromCFG.get(0));
+        final Hashtable<String, Object> constraintsSolved = solver.solveConstraints();
+
+        assertEquals(1, solver.resolveExpectedReturn());
     }
 }

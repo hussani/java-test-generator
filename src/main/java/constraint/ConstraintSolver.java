@@ -6,8 +6,11 @@ import cgf.CFGSimpleNode;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.nodeTypes.NodeWithCondition;
+import com.github.javaparser.ast.stmt.ReturnStmt;
 import com.github.javaparser.ast.type.PrimitiveType;
 import graph.CustomEdge;
 import org.chocosolver.solver.Model;
@@ -29,12 +32,17 @@ public class ConstraintSolver {
     private final Model model;
     private final Hashtable<String, Variable> modelVariables = new Hashtable<>();
     private final Hashtable<String, Variable> modelConstraints = new Hashtable<>();
+    private final CFG cfg;
+    private final GraphPath<CFGNode, CustomEdge> graphPath;
 
-    public ConstraintSolver() {
+    public ConstraintSolver(final CFG cfg, final GraphPath<CFGNode, CustomEdge> graphPath) {
         this.model = new Model();
+        this.cfg = cfg;
+        this.graphPath = graphPath;
+
     }
 
-    public Hashtable<String, Object> solveConstraints(CFG cfg, GraphPath<CFGNode, CustomEdge> graphPath) {
+    public Hashtable<String, Object> solveConstraints() {
         Hashtable<String, Variable> variables = new Hashtable<>();
         cfg.getParameters().forEach(p -> modelVariables.put(p.getNameAsString(), this.astParameterToModelVar(p)));
 
@@ -48,16 +56,50 @@ public class ConstraintSolver {
         Solver solver = model.getSolver();
         solver.limitTime(SOLVING_TIME_LIMIT);
         Solution solution = new Solution(model);
+
         if (solver.solve()) {
             solution.record();
+
+            final Map<String, Object> collect = modelVariables.entrySet()
+                                                              .stream()
+                                                              .collect(Collectors.toMap(Map.Entry::getKey,
+                                                                      this::getSolvedValue));
+
+            return new Hashtable<>(collect);
         }
 
-        final Map<String, Object> collect = modelVariables.entrySet()
-                                                          .stream()
-                                                          .collect(Collectors.toMap(Map.Entry::getKey,
-                                                                  this::getSolvedValue));
+        throw new RuntimeException();
+    }
 
-        return new Hashtable<>(collect);
+    public Object resolveExpectedReturn() {
+        final Optional<Expression> optExpression = graphPath.getEdgeList()
+                                                            .stream()
+                                                            .map(customEdge -> (CFGNode) customEdge.getSource())
+                                                            .filter(cfgNode -> cfgNode instanceof CFGSimpleNode)
+                                                            .map(CFGNode::getAstNode)
+                                                            .filter(Optional::isPresent)
+                                                            .map(Optional::get)
+                                                            .filter(node -> node instanceof ReturnStmt)
+                                                            .map((Node node) -> ((ReturnStmt) node).getExpression())
+                                                            .filter(Optional::isPresent)
+                                                            .map(Optional::get)
+                                                            .findFirst();
+
+        if (optExpression.isEmpty()) {
+            throw new RuntimeException();
+        }
+
+        final Expression expression = optExpression.get();
+
+        if (expression instanceof IntegerLiteralExpr) {
+            return expression.asIntegerLiteralExpr().asNumber().intValue();
+        }
+
+        if (expression instanceof BooleanLiteralExpr) {
+            return expression.asBooleanLiteralExpr().getValue();
+        }
+
+        throw new RuntimeException();
     }
 
     private Object getSolvedValue(Map.Entry<String, Variable> entry) {
