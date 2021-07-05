@@ -47,7 +47,7 @@ public class CGFBuilder {
                                            .filter(entryNode -> !fromNodes.contains(entryNode))
                                            .collect(Collectors.toList());
         cfg.addNode(end);
-        leafNodes.forEach(leaf -> cfg.addEdge(new CFGEdge(leaf, end)));
+        leafNodes.forEach(leaf -> cfg.addEdge(new CFGEdge(leaf, end, false)));
 
         cfg.setReturnType(node.getType());
         cfg.setName(node.getName().getIdentifier());
@@ -68,9 +68,12 @@ public class CGFBuilder {
             return cfg;
         }
 
+        boolean forkRightSide = false;
+
         if (this.lastBranch != null && this.lastBranch != parent) {
             parent = this.lastBranch;
             this.lastBranch = null;
+            forkRightSide = true;
         }
 
         final CFGSimpleNode currentCFGSimpleNode = new CFGSimpleNode(node);
@@ -96,10 +99,8 @@ public class CGFBuilder {
         cfg.addNode(currentCFGSimpleNode);
 
         if (parent != null) {
-            cfg.addEdge(new CFGEdge(parent, currentCFGSimpleNode));
+            cfg.addEdge(new CFGEdge(parent, currentCFGSimpleNode, forkRightSide));
         }
         return cfg;
     }
 }
-
-
