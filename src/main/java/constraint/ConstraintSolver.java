@@ -14,10 +14,12 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.Variable;
+import org.chocosolver.util.ESat;
 import org.jgrapht.GraphPath;
 
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,7 +34,7 @@ public class ConstraintSolver {
         this.model = new Model();
     }
 
-    public Hashtable<String, Parameter> solveConstraints(CFG cfg, GraphPath<CFGNode, CustomEdge> graphPath) {
+    public Hashtable<String, Object> solveConstraints(CFG cfg, GraphPath<CFGNode, CustomEdge> graphPath) {
         Hashtable<String, Variable> variables = new Hashtable<>();
         cfg.getParameters().forEach(p -> modelVariables.put(p.getNameAsString(), this.astParameterToModelVar(p)));
 
@@ -50,7 +52,23 @@ public class ConstraintSolver {
             solution.record();
         }
 
-        return null;
+        final Map<String, Object> collect = modelVariables.entrySet()
+                                                          .stream()
+                                                          .collect(Collectors.toMap(Map.Entry::getKey,
+                                                                  this::getSolvedValue));
+
+        return new Hashtable<>(collect);
+    }
+
+    private Object getSolvedValue(Map.Entry<String, Variable> entry) {
+        Variable variable = entry.getValue();
+        if (variable.getTypeAndKind() == 9) {
+            return variable.asIntVar().getValue();
+        }
+        if (variable.getTypeAndKind() == 25) {
+            return variable.asBoolVar().getBooleanValue() == ESat.TRUE;
+        }
+        throw new RuntimeException();
     }
 
     private void expressionToConstraint(BinaryExpr expression) {
