@@ -104,6 +104,10 @@ public class ConstraintSolver {
 
     private Object getSolvedValue(Map.Entry<String, Variable> entry) {
         Variable variable = entry.getValue();
+        return getSolvedValue(variable);
+    }
+
+    private Object getSolvedValue(Variable variable) {
         if (variable.getTypeAndKind() == 9) {
             return variable.asIntVar().getValue();
         }
