@@ -2,7 +2,7 @@ package path;
 
 import cgf.CFG;
 import cgf.CFGNode;
-import cgf.CGFBuilder;
+import cgf.CFGBuilder;
 import graph.CustomEdge;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -23,7 +23,7 @@ class PathGeneratorTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
 
         PathGenerator generator = new PathGenerator();
@@ -39,7 +39,7 @@ class PathGeneratorTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
 
         PathGenerator generator = new PathGenerator();

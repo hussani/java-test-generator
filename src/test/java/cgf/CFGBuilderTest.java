@@ -19,7 +19,7 @@ class CFGBuilderTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
 
         assertEquals(1, cfgList.size());
@@ -34,7 +34,7 @@ class CFGBuilderTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
 
         assertEquals(1, cfgList.size());
@@ -49,7 +49,7 @@ class CFGBuilderTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
 
         assertEquals(1, cfgList.size());
@@ -64,7 +64,7 @@ class CFGBuilderTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
 
         cfgList.stream().map(cfg -> {

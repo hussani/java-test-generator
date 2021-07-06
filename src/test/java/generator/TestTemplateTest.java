@@ -2,7 +2,7 @@ package generator;
 
 import cgf.CFG;
 import cgf.CFGNode;
-import cgf.CGFBuilder;
+import cgf.CFGBuilder;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import constraint.ConstraintSolver;
@@ -28,7 +28,7 @@ class TestTemplateTest {
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
 
-        CGFBuilder builder = new CGFBuilder();
+        CFGBuilder builder = new CFGBuilder();
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
 
         PathGenerator generator = new PathGenerator();
