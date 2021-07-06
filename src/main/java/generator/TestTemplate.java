@@ -9,7 +9,12 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.BooleanLiteralExpr;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.IntegerLiteralExpr;
+import com.github.javaparser.ast.expr.LiteralExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.PrimitiveType;
@@ -53,6 +58,18 @@ public class TestTemplate {
                 new VariableDeclarationExpr(
                         createVariableDeclarator(expectedReturn, "expected", cfg.getReturnType())));
 
+        NodeList<Expression> callParameters = new NodeList<>();
+        cfg.getParameters().forEach(parameter -> {
+            callParameters.add(new NameExpr(parameter.getNameAsString()));
+        });
+
+        MethodCallExpr assertExpression = new MethodCallExpr("assertEquals",
+                getReturnLiteral(expectedReturn, cfg.getReturnType()),
+                new MethodCallExpr(new NameExpr("varName"),
+                        new SimpleName(cfg.getName()),
+                        callParameters));
+        methodBody.addStatement(assertExpression);
+
         methodDeclaration.setBody(methodBody);
 
         ClassOrInterfaceDeclaration klass = this.testBase(cfg.getClassName());
@@ -62,15 +79,22 @@ public class TestTemplate {
         klass.getFullyQualifiedName();
     }
 
-    private VariableDeclarator createVariableDeclarator(Object inputVar, String variableName, Type type) {
-        VariableDeclarator declarator = new VariableDeclarator(type, variableName);
+    private LiteralExpr getReturnLiteral(Object value, Type type) {
         if (type.equals(PrimitiveType.booleanType())) {
-            declarator.setInitializer(new BooleanLiteralExpr((boolean) inputVar));
+            return new BooleanLiteralExpr((Boolean) value);
         }
 
         if (type.equals(PrimitiveType.intType())) {
-            declarator.setInitializer(new IntegerLiteralExpr(inputVar.toString()));
+            return new IntegerLiteralExpr(value.toString());
         }
+
+        throw new RuntimeException();
+    }
+
+    private VariableDeclarator createVariableDeclarator(Object inputVar, String variableName, Type type) {
+        VariableDeclarator declarator = new VariableDeclarator(type, variableName);
+        declarator.setInitializer(getReturnLiteral(inputVar, type));
+
         return declarator;
     }
 
