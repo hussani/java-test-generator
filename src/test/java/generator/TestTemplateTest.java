@@ -4,6 +4,7 @@ import cgf.CFG;
 import cgf.CFGNode;
 import cgf.CGFBuilder;
 import constraint.ConstraintSolver;
+import constraint.TestSolution;
 import graph.CustomEdge;
 import org.jgrapht.GraphPath;
 import org.junit.jupiter.api.Test;
@@ -11,10 +12,8 @@ import path.PathGenerator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Hashtable;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.stream.Collectors;
 
 class TestTemplateTest {
 
@@ -32,13 +31,13 @@ class TestTemplateTest {
         PathGenerator generator = new PathGenerator();
         final List<GraphPath<CFGNode, CustomEdge>> allPathsFromCFG = generator.getAllPathsFromCFG(cfg);
 
-        ConstraintSolver solver = new ConstraintSolver(cfg, allPathsFromCFG.get(0));
-        final Hashtable<String, Object> constraintsSolved = solver.solveConstraints();
-
-        assertEquals(1, solver.resolveExpectedReturn());
+        final List<TestSolution> collect = allPathsFromCFG.stream().map(path -> {
+            ConstraintSolver solver = new ConstraintSolver(cfg, path);
+            return new TestSolution(solver.solveConstraints(), solver.resolveExpectedReturn());
+        }).collect(Collectors.toList());
 
         TestTemplate template = new TestTemplate();
 
-        template.testCreateTestMethod(cfg, constraintsSolved, solver.resolveExpectedReturn());
+        template.createCompilationUnit(cfg, collect);
     }
 }

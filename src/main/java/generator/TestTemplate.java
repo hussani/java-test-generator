@@ -22,8 +22,10 @@ import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
+import constraint.TestSolution;
 
-import java.util.Hashtable;
+import java.util.List;
+import java.util.stream.IntStream;
 
 public class TestTemplate {
     public ClassOrInterfaceDeclaration testBase(String className) {
@@ -42,23 +44,34 @@ public class TestTemplate {
         );
     }
 
-    public void testCreateTestMethod(CFG cfg, Hashtable<String, Object> inputVars, Object expectedReturn) {
+    public void createCompilationUnit(CFG cfg, List<TestSolution> testSolutions) {
+        ClassOrInterfaceDeclaration klass = this.testBase(cfg.getClassName());
+        IntStream.range(0, testSolutions.size())
+                 .mapToObj(i -> this.getMethodDeclaration(cfg, testSolutions.get(i), i))
+                 .forEach(klass::addMember);
+
+        CompilationUnit cu = getCompilationUnit(cfg.getPackageName());
+        cu.addType(klass);
+        klass.getFullyQualifiedName();
+    }
+
+    private MethodDeclaration getMethodDeclaration(CFG cfg, TestSolution testSolution, Integer testNumber) {
         MethodDeclaration methodDeclaration = new MethodDeclaration();
         methodDeclaration.addAnnotation("Test");
         methodDeclaration.addModifier(Modifier.Keyword.PUBLIC);
-        methodDeclaration.setName(cfg.getName());
+        methodDeclaration.setName(cfg.getName() + testNumber.toString());
         methodDeclaration.setType(new VoidType());
 
         BlockStmt methodBody = new BlockStmt();
 
         cfg.getParameters().stream().map(parameter -> {
-            Object parameterValue = inputVars.get(parameter.getNameAsString());
+            Object parameterValue = testSolution.getConstraintsSolved().get(parameter.getNameAsString());
             return createVariableDeclarator(parameterValue, parameter.getNameAsString(), parameter.getType());
         }).map(VariableDeclarationExpr::new).forEach(methodBody::addStatement);
 
         methodBody.addStatement(
                 new VariableDeclarationExpr(
-                        createVariableDeclarator(expectedReturn, "expected", cfg.getReturnType())));
+                        createVariableDeclarator(testSolution.getExpectedReturn(), "expected", cfg.getReturnType())));
 
         NodeList<Expression> callParameters = new NodeList<>();
         cfg.getParameters().forEach(parameter -> {
@@ -68,19 +81,14 @@ public class TestTemplate {
         methodBody.addStatement(this.getInstanceDeclaration(cfg));
 
         MethodCallExpr assertExpression = new MethodCallExpr("assertEquals",
-                getReturnLiteral(expectedReturn, cfg.getReturnType()),
+                getReturnLiteral(testSolution.getExpectedReturn(), cfg.getReturnType()),
                 new MethodCallExpr(new NameExpr(getInstanceVarName(cfg)),
                         new SimpleName(cfg.getName()),
                         callParameters));
         methodBody.addStatement(assertExpression);
 
         methodDeclaration.setBody(methodBody);
-
-        ClassOrInterfaceDeclaration klass = this.testBase(cfg.getClassName());
-        klass.addMember(methodDeclaration);
-        CompilationUnit cu = getCompilationUnit(cfg.getPackageName());
-        cu.addType(klass);
-        klass.getFullyQualifiedName();
+        return methodDeclaration;
     }
 
     private VariableDeclarationExpr getInstanceDeclaration(CFG cfg) {
