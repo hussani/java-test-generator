@@ -20,7 +20,6 @@ class TestTemplateTest {
     @Test
     public void testGenerateTestFile() throws FileNotFoundException {
         String filename = "IfElseSimple.java";
-//        String filename = "TestFile.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
         File file = new File(classLoader.getResource(filename).getFile());
