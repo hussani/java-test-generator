@@ -30,24 +30,27 @@ import java.util.stream.Collectors;
 public class ConstraintSolver {
 
     private static final String SOLVING_TIME_LIMIT = "10s";
+    public static final int LOW_BOUNDARY = -1000;
+    public static final int UP_BOUNDARY = 1000;
     private final Model model;
     private final Hashtable<String, Variable> modelVariables = new Hashtable<>();
-    private final Hashtable<String, Variable> modelConstraints = new Hashtable<>();
     private final CFG cfg;
     private final GraphPath<CFGNode, CustomEdge> graphPath;
+    private boolean returnIsLiteral;
+    private Object solvedReturn;
+    private Variable returnConstraintVar;
 
     public ConstraintSolver(final CFG cfg, final GraphPath<CFGNode, CustomEdge> graphPath) {
         this.model = new Model();
         this.cfg = cfg;
         this.graphPath = graphPath;
-
     }
 
     public Hashtable<String, Object> solveConstraints() {
-        Hashtable<String, Variable> variables = new Hashtable<>();
         cfg.getParameters().forEach(p -> modelVariables.put(p.getNameAsString(), this.astParameterToModelVar(p)));
 
         getExpressions(graphPath);
+        evaluateReturnExpression();
 
         Solver solver = model.getSolver();
         solver.limitTime(SOLVING_TIME_LIMIT);
@@ -60,6 +63,9 @@ public class ConstraintSolver {
                                                               .stream()
                                                               .collect(Collectors.toMap(Map.Entry::getKey,
                                                                       this::getSolvedValue));
+            if (!this.returnIsLiteral) {
+                this.solvedReturn = this.getSolvedValue(this.returnConstraintVar);
+            }
 
             return new Hashtable<>(collect);
         }
@@ -68,6 +74,21 @@ public class ConstraintSolver {
     }
 
     public Object resolveExpectedReturn() {
+        return this.solvedReturn;
+    }
+
+    private Object getLiteralReturn(Expression expression) {
+        if (expression instanceof IntegerLiteralExpr) {
+            return expression.asIntegerLiteralExpr().asNumber().intValue();
+        }
+
+        if (expression instanceof BooleanLiteralExpr) {
+            return expression.asBooleanLiteralExpr().getValue();
+        }
+        throw new RuntimeException();
+    }
+
+    private void evaluateReturnExpression() {
         final Optional<Expression> optExpression = graphPath.getEdgeList()
                                                             .stream()
                                                             .map(customEdge -> (CFGNode) customEdge.getSource())
@@ -87,15 +108,30 @@ public class ConstraintSolver {
 
         final Expression expression = optExpression.get();
 
-        if (expression instanceof IntegerLiteralExpr) {
-            return expression.asIntegerLiteralExpr().asNumber().intValue();
+        if (!(expression instanceof BinaryExpr)) {
+            this.returnIsLiteral = true;
+            this.solvedReturn = this.getLiteralReturn(expression);
+            return;
         }
 
-        if (expression instanceof BooleanLiteralExpr) {
-            return expression.asBooleanLiteralExpr().getValue();
+        Variable left, right;
+        BinaryExpr binaryExpr = expression.asBinaryExpr();
+        if (binaryExpr.getLeft().isNameExpr() && modelVariables.containsKey(binaryExpr.getLeft().asNameExpr().getNameAsString())) {
+            left = modelVariables.get(binaryExpr.getLeft().asNameExpr().getNameAsString());
+        } else {
+            throw new RuntimeException();
         }
 
-        throw new RuntimeException();
+        if (binaryExpr.getRight().isNameExpr() && modelVariables.containsKey(binaryExpr.getRight().asNameExpr().getNameAsString())) {
+            right = modelVariables.get(binaryExpr.getRight().asNameExpr().getNameAsString());
+        } else {
+            throw new RuntimeException();
+        }
+
+        this.returnConstraintVar = model.intVar("return", LOW_BOUNDARY, UP_BOUNDARY);
+
+        model.arithm(left.asIntVar(), binaryExpr.getOperator().asString(), right.asIntVar(), "=", this.returnConstraintVar.asIntVar()).post();
+        this.returnIsLiteral = false;
     }
 
     private Object getSolvedValue(Map.Entry<String, Variable> entry) {
@@ -165,7 +201,7 @@ public class ConstraintSolver {
         }
 
         if (type.getType().equals(PrimitiveType.Primitive.INT)) {
-            return model.intVar(parameter.getName().asString(), -1000, 1000);
+            return model.intVar(parameter.getName().asString(), LOW_BOUNDARY, UP_BOUNDARY);
         }
 
         return null;

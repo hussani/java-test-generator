@@ -50,7 +50,7 @@ class ConstraintSolverTest {
         final List<GraphPath<CFGNode, CustomEdge>> allPathsFromCFG = generator.getAllPathsFromCFG(cfg);
 
         ConstraintSolver solver = new ConstraintSolver(cfg, allPathsFromCFG.get(0));
-        final Hashtable<String, Object> constraintsSolved = solver.solveConstraints();
+        solver.solveConstraints();
 
         assertEquals(1, solver.resolveExpectedReturn());
     }
