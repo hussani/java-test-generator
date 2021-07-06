@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 public class TestTemplate {
-    public ClassOrInterfaceDeclaration testBase(String className) {
+    private ClassOrInterfaceDeclaration createClass(String className) {
         ClassOrInterfaceDeclaration klass = new ClassOrInterfaceDeclaration();
         klass.setName(className + "Test");
         klass.addModifier(Modifier.Keyword.PUBLIC);
@@ -45,7 +45,7 @@ public class TestTemplate {
     }
 
     public void createCompilationUnit(CFG cfg, List<TestSolution> testSolutions) {
-        ClassOrInterfaceDeclaration klass = this.testBase(cfg.getClassName());
+        ClassOrInterfaceDeclaration klass = this.createClass(cfg.getClassName());
         IntStream.range(0, testSolutions.size())
                  .mapToObj(i -> this.getMethodDeclaration(cfg, testSolutions.get(i), i))
                  .forEach(klass::addMember);
