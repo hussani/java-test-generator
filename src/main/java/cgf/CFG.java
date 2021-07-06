@@ -11,6 +11,9 @@ public class CFG {
     private Hashtable<String, CFGNode> nodes;
     private Hashtable<String, CFGEdge> edges;
     private String name;
+    private String className;
+    private String fullQualifiedName;
+    private String packageName;
     private Type returnType;
     private final List<Parameter> parameters;
 
@@ -74,5 +77,29 @@ public class CFG {
 
     public void addParameter(Parameter parameter) {
         this.parameters.add(parameter);
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getFullQualifiedName() {
+        return fullQualifiedName;
+    }
+
+    public void setFullQualifiedName(String fullQualifiedName) {
+        this.fullQualifiedName = fullQualifiedName;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }

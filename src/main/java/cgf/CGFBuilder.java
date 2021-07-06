@@ -3,8 +3,10 @@ package cgf;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.ast.nodeTypes.NodeWithName;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.ReturnStmt;
@@ -24,6 +26,11 @@ public class CGFBuilder {
         final List<CFG> cfgList = cu.findAll(MethodDeclaration.class)
                                     .stream()
                                     .map(this::buildCFGFromMethodDeclaration)
+                                    .peek(cfg -> {
+                                        String packageName = cu.getPackageDeclaration()
+                                                               .map(NodeWithName::getNameAsString).orElse("");
+                                        cfg.setPackageName(packageName);
+                                    })
                                     .collect(Collectors.toList());
 
         System.out.println(Arrays.toString(cfgList.toArray()));
@@ -34,6 +41,7 @@ public class CGFBuilder {
     private CFG buildCFGFromMethodDeclaration(MethodDeclaration node) {
         final CFG cfg = this.introspectCFG(node, new CFG(), null);
         final CFGEndNode end = new CFGEndNode();
+        final ClassOrInterfaceDeclaration parentClass = (ClassOrInterfaceDeclaration) node.getParentNode().get();
 
         final List<CFGNode> fromNodes = cfg.getEdges()
                                            .values()
@@ -51,6 +59,8 @@ public class CGFBuilder {
 
         cfg.setReturnType(node.getType());
         cfg.setName(node.getName().getIdentifier());
+        cfg.setClassName(parentClass.getNameAsString());
+        cfg.setFullQualifiedName(parentClass.getFullyQualifiedName().orElse(""));
         node.getParameters().forEach(cfg::addParameter);
 
         return cfg;
