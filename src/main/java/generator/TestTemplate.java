@@ -44,7 +44,7 @@ public class TestTemplate {
         );
     }
 
-    public void createCompilationUnit(CFG cfg, List<TestSolution> testSolutions) {
+    public CompilationUnit createCompilationUnit(CFG cfg, List<TestSolution> testSolutions) {
         ClassOrInterfaceDeclaration klass = this.createClass(cfg.getClassName());
         IntStream.range(0, testSolutions.size())
                  .mapToObj(i -> this.getMethodDeclaration(cfg, testSolutions.get(i), i))
@@ -52,7 +52,8 @@ public class TestTemplate {
 
         CompilationUnit cu = getCompilationUnit(cfg.getPackageName());
         cu.addType(klass);
-        klass.getFullyQualifiedName();
+
+        return cu;
     }
 
     private MethodDeclaration getMethodDeclaration(CFG cfg, TestSolution testSolution, Integer testNumber) {
