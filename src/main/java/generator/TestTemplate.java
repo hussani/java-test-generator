@@ -14,9 +14,11 @@ import com.github.javaparser.ast.expr.IntegerLiteralExpr;
 import com.github.javaparser.ast.expr.LiteralExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.NameExpr;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.PrimitiveType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
@@ -63,9 +65,11 @@ public class TestTemplate {
             callParameters.add(new NameExpr(parameter.getNameAsString()));
         });
 
+        methodBody.addStatement(this.getInstanceDeclaration(cfg));
+
         MethodCallExpr assertExpression = new MethodCallExpr("assertEquals",
                 getReturnLiteral(expectedReturn, cfg.getReturnType()),
-                new MethodCallExpr(new NameExpr("varName"),
+                new MethodCallExpr(new NameExpr(getInstanceVarName(cfg)),
                         new SimpleName(cfg.getName()),
                         callParameters));
         methodBody.addStatement(assertExpression);
@@ -77,6 +81,21 @@ public class TestTemplate {
         CompilationUnit cu = getCompilationUnit(cfg.getPackageName());
         cu.addType(klass);
         klass.getFullyQualifiedName();
+    }
+
+    private VariableDeclarationExpr getInstanceDeclaration(CFG cfg) {
+        final ClassOrInterfaceType classOrInterfaceType = new ClassOrInterfaceType(null, cfg.getClassName());
+        final ObjectCreationExpr initializer = new ObjectCreationExpr(
+                null, classOrInterfaceType,
+                new NodeList<>()
+        );
+
+        return new VariableDeclarationExpr(
+                new VariableDeclarator(classOrInterfaceType, getInstanceVarName(cfg), initializer));
+    }
+
+    private String getInstanceVarName(CFG cfg) {
+        return cfg.getClassName().substring(0, 1).toLowerCase() + cfg.getClassName().substring(1);
     }
 
     private LiteralExpr getReturnLiteral(Object value, Type type) {
