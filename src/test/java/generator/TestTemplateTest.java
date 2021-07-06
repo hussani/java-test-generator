@@ -39,6 +39,6 @@ class TestTemplateTest {
 
         TestTemplate template = new TestTemplate();
 
-        template.testCreateTestMethod(cfg, constraintsSolved);
+        template.testCreateTestMethod(cfg, constraintsSolved, solver.resolveExpectedReturn());
     }
 }
