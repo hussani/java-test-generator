@@ -44,19 +44,23 @@ public class TestTemplate {
         );
     }
 
-    public CompilationUnit createCompilationUnit(CFG cfg, List<TestSolution> testSolutions) {
-        ClassOrInterfaceDeclaration klass = this.createClass(cfg.getClassName());
+    public CompilationUnit createCompilationUnit(String className, List<TestSolution> testSolutions) {
+        if (testSolutions.isEmpty()) {
+            throw new RuntimeException();
+        }
+        ClassOrInterfaceDeclaration klass = this.createClass(className);
         IntStream.range(0, testSolutions.size())
-                 .mapToObj(i -> this.getMethodDeclaration(cfg, testSolutions.get(i), i))
+                 .mapToObj(i -> this.getMethodDeclaration(testSolutions.get(i), i))
                  .forEach(klass::addMember);
 
-        CompilationUnit cu = getCompilationUnit(cfg.getPackageName());
+        CompilationUnit cu = getCompilationUnit(testSolutions.get(0).getCfg().getPackageName());
         cu.addType(klass);
 
         return cu;
     }
 
-    private MethodDeclaration getMethodDeclaration(CFG cfg, TestSolution testSolution, Integer testNumber) {
+    private MethodDeclaration getMethodDeclaration(TestSolution testSolution, Integer testNumber) {
+        final CFG cfg = testSolution.getCfg();
         MethodDeclaration methodDeclaration = new MethodDeclaration();
         methodDeclaration.addAnnotation("Test");
         methodDeclaration.addModifier(Modifier.Keyword.PUBLIC);

@@ -36,12 +36,12 @@ class TestTemplateTest {
 
         final List<TestSolution> testSolutions = allPathsFromCFG.stream().map(path -> {
             ConstraintSolver solver = new ConstraintSolver(cfg, path);
-            return new TestSolution(solver.solveConstraints(), solver.resolveExpectedReturn());
+            return new TestSolution(cfg, solver.solveConstraints(), solver.resolveExpectedReturn());
         }).collect(Collectors.toList());
 
         TestTemplate template = new TestTemplate();
 
-        CompilationUnit cu = template.createCompilationUnit(cfg, testSolutions);
+        CompilationUnit cu = template.createCompilationUnit(cfg.getClassName(), testSolutions);
 
         assertEquals(2, cu.findAll(MethodDeclaration.class).size());
     }
