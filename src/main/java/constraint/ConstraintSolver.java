@@ -1,6 +1,7 @@
 package constraint;
 
 import cgf.CFG;
+import cgf.CFGEdge;
 import cgf.CFGNode;
 import cgf.CFGSimpleNode;
 import com.github.javaparser.ast.Node;
@@ -16,12 +17,12 @@ import graph.CustomEdge;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Operator;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 import org.jgrapht.GraphPath;
 
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,12 +47,7 @@ public class ConstraintSolver {
         Hashtable<String, Variable> variables = new Hashtable<>();
         cfg.getParameters().forEach(p -> modelVariables.put(p.getNameAsString(), this.astParameterToModelVar(p)));
 
-        final List<Expression> expressions = getExpressions(graphPath);
-
-        expressions.stream()
-                   .filter(Expression::isBinaryExpr)
-                   .map(Expression::asBinaryExpr)
-                   .forEach(this::expressionToConstraint);
+        getExpressions(graphPath);
 
         Solver solver = model.getSolver();
         solver.limitTime(SOLVING_TIME_LIMIT);
@@ -117,28 +113,44 @@ public class ConstraintSolver {
         throw new RuntimeException();
     }
 
-    private void expressionToConstraint(BinaryExpr expression) {
+    private void expressionToConstraint(BinaryExpr expression, boolean oppositeConstraint) {
         if (!expression.getLeft().isNameExpr() || !expression.getRight().isNameExpr()) {
             return;
         }
         Variable left = modelVariables.get(expression.getLeft().asNameExpr().getNameAsString());
         Variable right =  modelVariables.get(expression.getRight().asNameExpr().getNameAsString());
 
-        model.arithm(left.asIntVar(), expression.getOperator().asString(), right.asIntVar()).post();
+        Operator operator = Operator.get(expression.getOperator().asString());
 
+        if (oppositeConstraint) {
+            operator = Operator.getOpposite(operator);
+        }
+
+        model.arithm(left.asIntVar(), String.valueOf(operator), right.asIntVar()).post();
     }
 
-    private List<Expression> getExpressions(GraphPath<CFGNode, CustomEdge> graphPath) {
-        return graphPath.getEdgeList()
-                        .stream()
-                        .map(customEdge -> (CFGNode) customEdge.getSource())
-                        .filter(cfgNode -> cfgNode instanceof CFGSimpleNode)
-                        .map(CFGNode::getAstNode)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .filter(node -> node instanceof NodeWithCondition)
-                        .map((Node node) -> ((NodeWithCondition<?>) node).getCondition())
-                        .collect(Collectors.toList());
+    private void getExpressions(GraphPath<CFGNode, CustomEdge> graphPath) {
+
+        for (CustomEdge customEdge : graphPath.getEdgeList()) {
+            CFGNode cfgNode = (CFGNode) customEdge.getSource();
+            if (cfgNode instanceof CFGSimpleNode) {
+                Optional<Node> astNode = cfgNode.getAstNode();
+                if (astNode.isPresent()) {
+                    Node node = astNode.get();
+                    if (node instanceof NodeWithCondition) {
+                        Expression condition = ((NodeWithCondition<?>) node).getCondition();
+                        if (condition.isBinaryExpr()) {
+                            BinaryExpr binaryExpr = condition.asBinaryExpr();
+                            expressionToConstraint(binaryExpr, getCfgEdge(cfg, customEdge).getForkNegate());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private CFGEdge getCfgEdge(CFG cfg, CustomEdge customEdge) {
+        return cfg.getEdges().get(customEdge.getSource() + "|" + customEdge.getTarget());
     }
 
     private Variable astParameterToModelVar(Parameter parameter) {
