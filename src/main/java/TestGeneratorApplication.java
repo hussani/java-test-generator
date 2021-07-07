@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Main {
+public class TestGeneratorApplication {
 
     public static final String GENERATED_TESTS_FOLDER = "generated-tests";
 

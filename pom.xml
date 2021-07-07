@@ -70,7 +70,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>Main</mainClass>
+                            <mainClass>TestGeneratorApplication</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
