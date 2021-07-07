@@ -18,8 +18,8 @@ public class CFG {
     private final List<Parameter> parameters;
 
     public CFG() {
-        this.nodes = new Hashtable<String, CFGNode>();
-        this.edges = new Hashtable<String, CFGEdge>();
+        this.nodes = new Hashtable<>();
+        this.edges = new Hashtable<>();
         this.parameters = new ArrayList<>();
     }
 

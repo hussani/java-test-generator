@@ -13,7 +13,6 @@ import com.github.javaparser.ast.stmt.ReturnStmt;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,19 +22,12 @@ public class CFGBuilder {
 
     public List<CFG> buildCFGFromFile(final File file) throws FileNotFoundException {
         CompilationUnit cu = StaticJavaParser.parse(file);
-        final List<CFG> cfgList = cu.findAll(MethodDeclaration.class)
-                                    .stream()
-                                    .map(this::buildCFGFromMethodDeclaration)
-                                    .peek(cfg -> {
-                                        String packageName = cu.getPackageDeclaration()
-                                                               .map(NodeWithName::getNameAsString).orElse("");
-                                        cfg.setPackageName(packageName);
-                                    })
-                                    .collect(Collectors.toList());
-
-        System.out.println(Arrays.toString(cfgList.toArray()));
-
-        return cfgList;
+        return cu.findAll(MethodDeclaration.class).stream()
+                 .map(this::buildCFGFromMethodDeclaration)
+                 .peek(cfg -> {
+                     String packageName = cu.getPackageDeclaration().map(NodeWithName::getNameAsString).orElse("");
+                     cfg.setPackageName(packageName);
+                 }).collect(Collectors.toList());
     }
 
     private CFG buildCFGFromMethodDeclaration(MethodDeclaration node) {
@@ -67,10 +59,8 @@ public class CFGBuilder {
     }
 
     private CFG introspectCFG(Node node, CFG cfg, CFGNode parent) {
-        System.out.println("Printing " + node.getClass().getName() + ". Range: " + node.getRange().get());
         if (node instanceof MethodDeclaration) {
             ((MethodDeclaration) node).getBody().ifPresent(body -> {
-                System.out.println(body);
                 final CFGNode root = new CFGRootNode();
                 cfg.addNode(root);
                 this.introspectCFG(body, cfg, root);
@@ -96,14 +86,12 @@ public class CFGBuilder {
 
         if (node instanceof IfStmt) {
             final Expression condition = ((IfStmt) node).getCondition();
-            System.out.println("If Expression. Condition found: " + condition.toString());
             this.introspectCFG(((IfStmt) node).getThenStmt(), cfg, currentCFGSimpleNode);
             this.lastBranch = currentCFGSimpleNode;
         }
 
         if (node instanceof ReturnStmt && ((ReturnStmt) node).getExpression().isPresent()) {
             final Expression expression = ((ReturnStmt) node).getExpression().get();
-            System.out.println("Return Expression: " + expression.getClass().getName() + " " + expression.toString());
         }
 
         cfg.addNode(currentCFGSimpleNode);

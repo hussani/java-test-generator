@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,7 +18,7 @@ class CFGBuilderTest {
         String filename = "IfElseSimple.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
@@ -32,7 +33,7 @@ class CFGBuilderTest {
         String filename = "Sum.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
@@ -47,7 +48,7 @@ class CFGBuilderTest {
         String filename = "Sum.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
@@ -62,14 +63,12 @@ class CFGBuilderTest {
         String filename = "IfElseSimple.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
 
-        cfgList.stream().map(cfg -> {
-            return cfg.getEdges().values().stream().filter(CFGEdge::getForkNegate).collect(Collectors.toList());
-        }).forEach(edgesWithFork -> assertEquals(1, edgesWithFork.size()));
+        cfgList.stream().map(cfg -> cfg.getEdges().values().stream().filter(CFGEdge::getForkNegate).collect(Collectors.toList())).forEach(edgesWithFork -> assertEquals(1, edgesWithFork.size()));
 
         assertEquals(1, cfgList.size());
         assertEquals(5, cfgList.get(0).getEdges().size());

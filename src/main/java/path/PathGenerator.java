@@ -25,12 +25,7 @@ public class PathGenerator {
 
         final AllDirectedPaths<String, DefaultEdge> pathAnalyser = new AllDirectedPaths<>(directedGraph);
 
-        final List<GraphPath<String, DefaultEdge>> allPaths =
-                pathAnalyser.getAllPaths("root", "end", false, MAX_PATH_LENGTH);
-
-        allPaths.forEach(System.out::println);
-
-        return allPaths;
+        return pathAnalyser.getAllPaths("root", "end", false, MAX_PATH_LENGTH);
     }
 
     public List<GraphPath<CFGNode, CustomEdge>> getAllPathsFromCFG(final CFG cfg) {
@@ -44,12 +39,9 @@ public class PathGenerator {
 
         final AllDirectedPaths<CFGNode, CustomEdge> pathAnalyser = new AllDirectedPaths<>(directedGraph);
 
-        final List<GraphPath<CFGNode, CustomEdge>> allPaths = pathAnalyser.getAllPaths(cfg.getRootNode(),
+        return pathAnalyser.getAllPaths(cfg.getRootNode(),
                 cfg.getEndNode(),
                 false,
                 MAX_PATH_LENGTH);
-
-        allPaths.forEach(System.out::println);
-        return allPaths;
     }
 }

@@ -79,9 +79,7 @@ public class TestTemplate {
                         createVariableDeclarator(testSolution.getExpectedReturn(), "expected", cfg.getReturnType())));
 
         NodeList<Expression> callParameters = new NodeList<>();
-        cfg.getParameters().forEach(parameter -> {
-            callParameters.add(new NameExpr(parameter.getNameAsString()));
-        });
+        cfg.getParameters().forEach(parameter -> callParameters.add(new NameExpr(parameter.getNameAsString())));
 
         methodBody.addStatement(this.getInstanceDeclaration(cfg));
 

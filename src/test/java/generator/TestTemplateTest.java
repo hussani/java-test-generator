@@ -15,6 +15,7 @@ import path.PathGenerator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +27,7 @@ class TestTemplateTest {
         String filename = "IfElseSimple.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
@@ -51,7 +52,7 @@ class TestTemplateTest {
         String filename = "If4Paths.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
@@ -76,7 +77,7 @@ class TestTemplateTest {
         String filename = "Sum.java";
 
         ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(filename).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(filename)).getFile());
 
         CFGBuilder builder = new CFGBuilder();
         final CFG cfg = builder.buildCFGFromFile(file).get(0);
