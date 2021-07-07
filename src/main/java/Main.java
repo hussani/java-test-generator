@@ -27,8 +27,11 @@ public class Main {
 
         PathGenerator generator = new PathGenerator();
         CFGBuilder builder = new CFGBuilder();
+
+        System.out.println("Building CFGs from " + filename);
         final List<CFG> cfgList = builder.buildCFGFromFile(file);
 
+        System.out.println("CFGs found: " + cfgList.size());
         if (cfgList.isEmpty()) {
             throw new RuntimeException("No methods was found in file");
         }
@@ -55,15 +58,20 @@ public class Main {
                                                         .flatMap(List::stream)
                                                         .collect(Collectors.toList());
 
+        System.out.println("Possible Test Cases: " + testSolutions.size());
         TestTemplate template = new TestTemplate();
 
+        System.out.println("Generating file...");
         CompilationUnit cu = template.createCompilationUnit(className, testSolutions);
 
         Files.createDirectories(Paths.get(GENERATED_TESTS_FOLDER));
+        String outputPath = GENERATED_TESTS_FOLDER + "/" + output;
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(GENERATED_TESTS_FOLDER + "/ " + output));
+        System.out.println("Writing into " + outputPath);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath));
         writer.write(cu.toString());
         writer.close();
 
+        System.out.println("Done");
     }
 }
