@@ -3,6 +3,7 @@ Automatic test generator using constraint programming.
 
 This is a solution for one of the projects of [SIN5022](https://uspdigital.usp.br/janus/componente/disciplinasOferecidasInicial.jsf?action=3&sgldis=SIN5022) discipline.
 
+[Leia em português clicando aqui](./README-pt_BR.md)
 ## What
 
 This project generates automated tests from Java source code.

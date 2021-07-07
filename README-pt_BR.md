@@ -3,6 +3,7 @@ Gerador de testes automatizados utilizando programação por restrições.
 
 Esta é a solução para um dos projetos da disciplina [SIN5022](https://uspdigital.usp.br/janus/componente/disciplinasOferecidasInicial.jsf?action=3&sgldis=SIN5022) discipline.
 
+[Read in English here](./README.md)
 ## Introdução
 
 Este projeto faz geração de testes automatizados utilizando de um código fonte Java. 
