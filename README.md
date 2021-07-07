@@ -40,6 +40,11 @@ You can change the output file with a second argument, like the command below.
 ```shell
 java -jar target/java-test-generator-0.1.0-SNAPSHOT.jar src/test/resources/If4Paths.java OutputFile.java
 ```
+
+In this video is possible to see some input, results, and how to install and use the program. (Open in a new tab)
+
+<a href="https://asciinema.org/a/424206" target="_blank"><img src="https://asciinema.org/a/424206.svg" /></a>
+
 ## Limitations
 This project doesn't advance on generates CFG of all Java instructions. Currently, the program supports limited `if` blocks with:
 - a single binary expression;

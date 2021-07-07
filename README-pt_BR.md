@@ -6,9 +6,9 @@ Esta é a solução para um dos projetos da disciplina [SIN5022](https://uspdigi
 [Read in English here](./README.md)
 ## Introdução
 
-Este projeto faz geração de testes automatizados utilizando de um código fonte Java. 
+Este projeto faz geração de testes automatizados utilizando de um código-fonte Java. 
 
-O código fonte é analisado, parseado e então o programa cria uma Gráfico de Fluxo de Controle (GFC) para cada método. Para cada GFC o gerador de caminhos lista todos os caminhos possíveis. Cara caminho possui um conjunto de expressões (ex. expressões aritiméticas ou lógicas).
+O código-fonte é analisado, parseado e então o programa cria um Gráfico de Fluxo de Controle (GFC) para cada método. Para cada GFC o gerador de caminhos lista todos os caminhos possíveis. Cara caminho possui um conjunto de expressões (ex. expressões aritiméticas ou lógicas).
 Estas expressões são convertidas em restrições e resolvidas pelo programa. Após as restrições serem resolvidas os parâmetros de entrada e retornos de cada GFC são estimados e utilizados geração de testes.
 
 ## Como utilizar
@@ -41,6 +41,11 @@ como demonstrado no comando abaixo.
 ```shell
 java -jar target/java-test-generator-0.1.0-SNAPSHOT.jar src/test/resources/If4Paths.java OutputFile.java
 ```
+
+Neste vídeo são apresentados algumas entradas, resultados e como instalar e executar o programa. (Abre em uma nova aba)
+
+<a href="https://asciinema.org/a/424206" target="_blank"><img src="https://asciinema.org/a/424206.svg" /></a>
+
 ## Limitações
 Este projeto não avançou muito na criação de GFC para todas as instruções Java válidas.
 Atualmente a aplicação permite o uso de declarações `if` limitadas com:
@@ -58,10 +63,10 @@ O programa também permite o uso de declarações de retorno com literais inteir
 - melhorar o uso geral de estruturas de dados
 - implementar testes unitários mais assertivos
 - utilizar melhor o padrão visitor nos nós da árvore sintática abstrata
-- uso de tipos genérios nos vértices e arestas da GFC
+- uso de tipos genéricos nos vértices e arestas da GFC
 
 ## Bibliotecas open source utilizadas
-- [javaparser](https://github.com/javaparser/javaparser) - Utilizada para fazer parse da árvore síntática abstrata e para gera código de teste
+- [javaparser](https://github.com/javaparser/javaparser) - Utilizada para fazer parse da árvore sintática abstrata e para gera código de teste
 - [choco-solver](https://github.com/chocoteam/choco-solver/) - Utilizada para resolver restrições
 - [jgrapht](https://github.com/jgrapht/jgrapht) - Utilizada para gerar caminhos válidos para a GFC
 - [JUnit 5](https://junit.org/junit5/) - Testes
