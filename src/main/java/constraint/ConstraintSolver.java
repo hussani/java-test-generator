@@ -56,9 +56,16 @@ public class ConstraintSolver {
         solver.limitTime(SOLVING_TIME_LIMIT);
         Solution solution = new Solution(model);
 
+        boolean isSolutionFound = false;
+        // replacing the if for while try to find best solution. This process takes longer time to run.
+        // while (solver.solve()) {
         if (solver.solve()) {
             solution.record();
 
+            isSolutionFound = true;
+        }
+
+        if (isSolutionFound) {
             final Map<String, Object> collect = modelVariables.entrySet()
                                                               .stream()
                                                               .collect(Collectors.toMap(Map.Entry::getKey,
@@ -69,7 +76,6 @@ public class ConstraintSolver {
 
             return new Hashtable<>(collect);
         }
-
         throw new RuntimeException();
     }
 
