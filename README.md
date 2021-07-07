@@ -1,5 +1,5 @@
 # Java Test Generator
-Automatic test generator using symbolic execution.
+Automatic test generator using constraint programming.
 
 This is a solution for one of the projects of [SIN5022](https://uspdigital.usp.br/janus/componente/disciplinasOferecidasInicial.jsf?action=3&sgldis=SIN5022) discipline.
 
@@ -60,6 +60,7 @@ The program also supports return statements with integer literals and arithmetic
 ## Used Open Source Libraries
 - [javaparser](https://github.com/javaparser/javaparser) - Used to parse source code into AST and code generation
 - [choco-solver](https://github.com/chocoteam/choco-solver/) - Used to solve constraints and general constraint programming
+- [jgrapht](https://github.com/jgrapht/jgrapht) - Used to generate valid CFG paths
 - [JUnit 5](https://junit.org/junit5/) - Tests
 
 
